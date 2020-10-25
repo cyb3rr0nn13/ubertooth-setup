@@ -1,46 +1,73 @@
-# Ubertooth SetUp
+# Step 1 - Installation
 
 # Deps:
 sudo apt-get install cmake libusb-1.0-0-dev make gcc g++ libbluetooth-dev pkg-config libpcap-dev python-numpy python-pyside python-qt4
 
 # Bluetooth baseband library:
-cd /opt/Software;
-wget https://github.com/greatscottgadgets/libbtbb/archive/2018-12-R1.tar.gz -O libbtbb-2018-12-R1.tar.gz;
-tar xf libbtbb-2018-12-R1.tar.gz;
-cd libbtbb-2018-12-R1;
-mkdir build && cd build && cmake .. && make && sudo make install && sudo ldconfig;
+cd /opt/Software
+wget https://github.com/greatscottgadgets/libbtbb/archive/2018-12-R1.tar.gz -O libbtbb-2018-12-R1.tar.gz
+tar xf libbtbb-2018-12-R1.tar.gz
+cd libbtbb-2018-12-R1
+mkdir build
+cd build
+cmake ..
+cd /opt/Software/libbtbb-2018-12-R1
+make
+sudo make install
+sudo ldconfig
 
 # Ubertooth-Tools
-cd /opt/Software;
-wget https://github.com/greatscottgadgets/ubertooth/releases/download/2018-12-R1/ubertooth-2018-12-R1.tar.xz -O ubertooth-2018-12-R1.tar.xz;
-tar xf ubertooth-2018-12-R1.tar.xz && cd ubertooth-2018-12-R1/host;
-mkdir build && cd build && cmake .. && make && sudo make install && sudo ldconfig;
+cd /opt/Software
+wget https://github.com/greatscottgadgets/ubertooth/releases/download/2018-12-R1/ubertooth-2018-12-R1.tar.xz -O ubertooth-2018-12-R1.tar.xz
+tar xf ubertooth-2018-12-R1.tar.xz
+cd ubertooth-2018-12-R1/host
+mkdir build
+cd buildcmake ..
+cd /opt/Software/ubertooth-2018-12-R1/host
+make
+sudo make install
+sudo ldconfig
 
 # Kismet Tools
-cd /opt/Software;
-sudo apt-get install libpcap0.8-dev libcap-dev pkg-config build-essential libnl-dev libncurses5-dev libpcre3-dev libpcap-dev libcap-dev;
-wget https://kismetwireless.net/code/kismet-2019-04-R1.tar.xz;
-tar xf kismet-2019-04-R1.tar.xz && cd kismet-2019-04-R1;
-ln -s /opt/Software/ubertooth-2018-12-R1/host/kismet/plugin-ubertooth . && ./configure && make;
-make plugins && sudo make suidinstall && sudo make plugins-install;
-sudo sed -i 's/logtypes=pcapdump,gpsxml,netxml,nettxt,alert/logtypes=pcapdump,gpsxml,netxml,nettxt,alert,pcapbtbb/g' /etc/kismet/kismet.conf;
+cd /opt/Software
+sudo apt-get install libpcap0.8-dev libcap-dev pkg-config build-essential libnl-dev libncurses5-dev libpcre3-dev libpcap-dev libcap-dev
+wget https://kismetwireless.net/code/kismet-2019-04-R1.tar.xz
+tar xf kismet-2019-04-R1.tar.xz
+cd kismet-2019-04-R1
+ln -s /opt/Software/ubertooth-2018-12-R1/host/kismet/plugin-ubertooth .
+./configure
+make
+make plugins
+sudo make suidinstall
+sudo make plugins-install
+sudo sed -i 's/logtypes=pcapdump,gpsxml,netxml,nettxt,alert/logtypes=pcapdump,gpsxml,netxml,nettxt,alert,pcapbtbb/g' /etc/kismet/kismet.conf
 
 # Wireshark
-sudo apt-get install wireshark-dev libwireshark-dev;
-cd /opt/Software/libbtbb-2018-12-R1/wireshark/plugins/btbb;
-mkdir build && cd build;
-cmake -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu/wireshark/libwireshark3/plugins .. && make;
-sudo make install;
+sudo apt-get install wireshark-dev libwireshark-dev
+cd /opt/Software/libbtbb-2018-12-R1/wireshark/plugins/btbb
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu/wireshark/libwireshark3/plugins .. 
+make
+sudo make install
 
 # BTBREDR libary:
-cd /opt/Software/libbtbb-2018-12-R1/wireshark/plugins/btbredr;
-mkdir build && cd build;
-cmake -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu/wireshark/libwireshark3/plugins .. && make && sudo make install
+cd /opt/Software/libbtbb-2018-12-R1/wireshark/plugins/btbredr
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu/wireshark/libwireshark3/plugins ..
+make
+sudo make install
 
 # Crackle
-cd /opt/Software && git clone https://github.com/mikeryan/crackle.git && cd crackle && make && sudo make install;
-sudo ldconfig;
+cd /opt/Software
+git clone https://github.com/mikeryan/crackle.git
+cd crackle
+make
+sudo make install
+sudo ldconfig
 
+# ----------------------------------------------------------------------------------------------------------------------
 
 # Step 2 - Capturing
 # Kismet:
