@@ -47,11 +47,11 @@ sudo ldconfig;
 # Start up Kismet from the command line or the task menu. 
 # Once it is running, accept all of the default options (colours, etc) and start the Kismet server when prompted.
 # Next you will be prompted to add a source interface. Use the following options:
-#  Intf: ubertooth
-#  Name: ubertooth
-#  Opt: [blank]
-# Navigate to [Kismet > Plugins > Select Plugin] and enable 'ubertooth_ui.so'. 
-# The status will change to 'pending', which is intended.
+  Intf: ubertooth
+  Name: ubertooth
+  Opt: [blank]
+# Kismet > Plugins > Select Plugin > enable 'ubertooth_ui.so' 
+# status will change to 'pending', which is intended.
 # Logged packets will be stored in the working directory for Kismet, 
 # which if you started the application via the command line will be the directory you were in. 
 # If this is the case, you can change to that terminal window and see a live output of the Bluetooth packets that were captured, 
