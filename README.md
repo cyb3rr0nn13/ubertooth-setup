@@ -1,113 +1,89 @@
-Install the necessary libraries and tools:
-
-apt-get install cmake libusb-1.0-0-dev make gcc g++ libbluetooth-dev pkg-config libpcap-dev python-numpy python-pyside python-qt4
-Next, install the Bluetooth baseband library:
-
-cd /opt && wget https://github.com/greatscottgadgets/libbtbb/archive/2015-09-R2.tar.gz -O libbtbb-2015-09-R2.tar.gz && tar xf libbtbb-2015-09-R2.tar.gz && cd libbtbb-2015-09-R2 && mkdir build && cd build && cmake .. && make && sudo make install
-
-Now the Ubertooth tools can be downloaded and configured:
-
-cd /opt && wget https://github.com/greatscottgadgets/ubertooth/releases/download/2015-09-R2/ubertooth-2015-09-R2.tar.xz -O ubertooth-2015-09-R2.tar.xz
-tar xf ubertooth-2015-09-R2.tar.xz && cd ubertooth-2015-09-R2/host && mkdir build && cd build && cmake .. && make && sudo make install && sudo ldconfig
-
-Install the Kismet tools if desired. 
-I have added a oneliner Sed command to replace the manual change described in the build guide. 
-I have also changed one of the libraries (libncurses-dev) as I kept getting package errors when trying to install via apt:
-
-cd /opt && sudo apt-get install libpcap0.8-dev libcap-dev pkg-config build-essential libnl-dev libncurses5-dev libpcre3-dev libpcap-dev libcap-dev
-wget https://kismetwireless.net/code/kismet-2013-03-R1b.tar.xz
-tar xf kismet-2013-03-R1b.tar.xz && cd kismet-2013-03-R1b
-ln -s ../ubertooth-2015-09-R2/host/kismet/plugin-ubertooth .
-./configure && make && make plugins
-sudo make suidinstall && sudo make plugins-install
-sed -i 's/logtypes=pcapdump,gpsxml,netxml,nettxt,alert/logtypes=pcapdump,gpsxml,netxml,nettxt,alert,pcapbtbb/g' /etc/kismet/kismet.conf
-
-You'll likely have Wireshark installed already so I've omitted the apt install of the base package:
-
-apt-get install wireshark-dev libwireshark-dev
-cd /opt/libbtbb-2015-09-R2/wireshark/plugins/btbb
+# Install the necessary libraries and tools:
+sudo apt-get install cmake libusb-1.0-0-dev make gcc g++ libbluetooth-dev pkg-config libpcap-dev python-numpy python-pyside python-qt4
+# Next, install the Bluetooth baseband library:
+cd /opt/Software
+wget https://github.com/greatscottgadgets/libbtbb/archive/2018-12-R1.tar.gz -O libbtbb-2018-12-R1.tar.gz
+tar xf libbtbb-2018-12-R1.tar.gz
+cd libbtbb-2018-12-R1
+mkdir build && cd build && cmake .. && make && sudo make install && sudo ldconfig
+# Now the Ubertooth-Tools can be downloaded and configured:
+cd /opt/Software
+wget https://github.com/greatscottgadgets/ubertooth/releases/download/2018-12-R1/ubertooth-2018-12-R1.tar.xz -O ubertooth-2018-12-R1.tar.xz
+tar xf ubertooth-2018-12-R1.tar.xz && cd ubertooth-2018-12-R1/host
+mkdir build && cd build && cmake .. && make && sudo make install && sudo ldconfig
+# Install the Kismet tools if desired. 
+# Sed command to replace the manual change described in the build guide. 
+# also changed one of the libraries (libncurses-dev) as I kept getting package errors when trying to install via apt:
+cd /opt/Software
+sudo apt-get install libpcap0.8-dev libcap-dev pkg-config build-essential libnl-dev libncurses5-dev libpcre3-dev libpcap-dev libcap-dev
+wget https://kismetwireless.net/code/kismet-2019-04-R1.tar.xz
+tar xf kismet-2019-04-R1.tar.xz && cd kismet-2019-04-R1
+ln -s /opt/Software/ubertooth-2018-12-R1/host/kismet/plugin-ubertooth .
+./configure && make && make plugins && sudo make suidinstall && sudo make plugins-install
+sudo sed -i 's/logtypes=pcapdump,gpsxml,netxml,nettxt,alert/logtypes=pcapdump,gpsxml,netxml,nettxt,alert,pcapbtbb/g' /etc/kismet/kismet.conf
+# You'll likely have Wireshark installed already so I've omitted the apt install of the base package:
+sudo apt-get install wireshark-dev libwireshark-dev
+cd /opt/Software/libbtbb-2018-12-R1/wireshark/plugins/btbb
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu/wireshark/libwireshark3/plugins ..
 make && sudo make install
-
-Lastly install the BTBREDR libary:
-
-cd /opt/libbtbb-2015-09-R2/wireshark/plugins/btbredr
+# Lastly install the BTBREDR libary:
+cd /opt/Software/libbtbb-2018-12-R1/wireshark/plugins/btbredr
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu/wireshark/libwireshark3/plugins .. 
 make && sudo make install
+# To decrypt Bluetooth Low Energy (BTLE) you will need to use something like Crackle to process the PCAP file that you've output from ubertooth-btle. 
+# We'll go in to this later, but for now you can just install it with the following one-liner:
+cd /opt/Software && git clone https://github.com/mikeryan/crackle.git && cd crackle/ && make && sudo make install
 
-To decrypt Bluetooth Low Energy (BTLE) you will need to use something like Crackle to process the PCAP file that you've output from ubertooth-btle. 
-We'll go in to this later, but for now you can just install it with the following one-liner:
+# Step 2 - Capturing
 
-cd /opt && git clone https://github.com/mikeryan/crackle.git && cd crackle/ && make && sudo make install
+# Kismet:
+# Start up Kismet from the command line or the task menu. 
+# Once it is running, accept all of the default options (colours, etc) and start the Kismet server when prompted.
+# Next you will be prompted to add a source interface. Use the following options:
+#  Intf: ubertooth
+#  Name: ubertooth
+#  Opt: [blank]
+# Navigate to [Kismet > Plugins > Select Plugin] and enable 'ubertooth_ui.so'. 
+# The status will change to 'pending', which is intended.
+# Logged packets will be stored in the working directory for Kismet, 
+# which if you started the application via the command line will be the directory you were in. 
+# If this is the case, you can change to that terminal window and see a live output of the Bluetooth packets that were captured, 
+# likely displaying the LAP (Lower-Address-Part).
+# Upon exiting Kismet the output should be saved to a pcapbtbb file, which can be imported into Wireshark.
 
+# Bluetooth:
+# Standard Bluetooth is a tough cookie to crack as the protocol is setup to channel hop repeatedly and very, very quickly
+# hence why the Ubertooth-One was created to offload the channel hopping to dedicated hardware. 
+# Each hopped packet transmits a LAP, a Lower Address Part, which is one of three address parts used by the protocol. 
+# The others are the UAP (Upper Address Part - something we need), and the NAP (Non-significant Address Part), 
+# both of which make up the 'Company ID' that is assigned much like a network adaptor MAC address.
 
+# Lower Address Part - LAP:
+# The LAP is transmitted with every packet and is easy to demodulate, 
+# however the UAP is the pot of gold at the end of the rainbow. 
+# Once we've captured and demodulated at least one Bluetooth packet we then have the LAP. 
+# We can do this with the Ubertooth by using the following comand without any arguments:
+  ubertooth-rx
+# The output will be something vaguely similar to the following output, 
+# where the LAP is clearly displayed next to the Channel (ch).
+  systime=1444317293 ch=39 LAP=28c03f err=2 clk100ns=798510522 clk1=127761 s=-29 n=-62 snr=33
 
-Step 2 - Capturing
-
-Kismet:
-Start up Kismet from the command line or the task menu. 
-Once it is running, accept all of the default options (colours, etc) and start the Kismet server when prompted.
-
-Next you will be prompted to add a source interface. Use the following options:
-
-Intf: ubertooth
-Name: ubertooth
-Opt: [blank]
-
-Navigate to [Kismet > Plugins > Select Plugin] and enable 'ubertooth_ui.so'. 
-The status will change to 'pending', which is intended.
-
-Logged packets will be stored in the working directory for Kismet, 
-which if you started the application via the command line will be the directory you were in. 
-If this is the case, you can change to that terminal window and see a live output of the Bluetooth packets that were captured, 
-likely displaying the LAP (Lower-Address-Part).
-
-Upon exiting Kismet the output should be saved to a pcapbtbb file, which can be imported into Wireshark.
-
-
-
-
-Ubertooth
-
-Bluetooth:
-Standard Bluetooth is a tough cookie to crack as the protocol is setup to channel hop repeatedly and very, very quickly
-hence why the Ubertooth-One was created to offload the channel hopping to dedicated hardware. 
-Each hopped packet transmits a LAP, a Lower Address Part, which is one of three address parts used by the protocol. 
-The others are the UAP (Upper Address Part - something we need), and the NAP (Non-significant Address Part), 
-both of which make up the 'Company ID' that is assigned much like a network adaptor MAC address.
-
-Lower Address Part - LAP:
-The LAP is transmitted with every packet and is easy to demodulate, 
-however the UAP is the pot of gold at the end of the rainbow. 
-Once we've captured and demodulated at least one Bluetooth packet we then have the LAP. 
-We can do this with the Ubertooth by using the following comand without any arguments:
-
-ubertooth-rx
-
-The output will be something vaguely similar to the following output, 
-where the LAP is clearly displayed next to the Channel (ch).
-
-systime=1444317293 ch=39 LAP=28c03f err=2 clk100ns=798510522 clk1=127761 s=-29 n=-62 snr=33
-
-Upper Address Part - UAP:
-The UAP is only 8 bits long, and the easiest method to determine it's value is a brute force (maximum 256 potential values) attack, 
-however this requires interaction with the target. 
-The NAP is not required as it is ignored on the initial connection process. 
-This is only possible however if the target device is in a connectible state.
-
-I won't go in to too much detail as the guys over at the Ubertooth project have written a fantastic blog post about their process: http://ubertooth.blogspot.co.uk/2014/06/discovering-bluetooth-uap.html
-
-As for the commands to use for determining the UAP, we can run the following:
-
-ubertooth-rx -l 28c03f
-
-This command targets the device with the LAP we identified earlier. 
-The Ubertooth will passively listen and will attempt to identify the hopping pattern of the target device. 
-The first method for obtaining the UAP that was created by the Ubertooth team was to reverse the Header Error Check that appears 
-within the header of the packets. 
-An except from the Project Ubertooth blog post relating to this is as follows:
+# Upper Address Part - UAP:
+# The UAP is only 8 bits long, and the easiest method to determine it's value is a brute force (maximum 256 potential values) attack, 
+# however this requires interaction with the target. 
+# The NAP is not required as it is ignored on the initial connection process. 
+# This is only possible however if the target device is in a connectible state.
+# I won't go in to too much detail as the guys over at the Ubertooth project have written a fantastic blog post about their process:  
+# http://ubertooth.blogspot.co.uk/2014/06/discovering-bluetooth-uap.html
+# As for the commands to use for determining the UAP, we can run the following:
+  ubertooth-rx -l 28c03f
+# This command targets the device with the LAP we identified earlier. 
+# The Ubertooth will passively listen and will attempt to identify the hopping pattern of the target device. 
+# The first method for obtaining the UAP that was created by the Ubertooth team was to reverse the Header Error Check that appears 
++ within the header of the packets. 
+# An except from the Project Ubertooth blog post relating to this is as follows:
 
 Our first technique is to compute the UAP by reversing the Header Error Check (HEC) that appears at the end of the header 
 of every packet that has a header. 
